@@ -24,6 +24,9 @@
 
 - (void)drawRect:(NSRect)dirtyRect
 {
+    // Modern AppKit can supply a dirty rect extending across neighboring controls.
+    [NSGraphicsContext saveGraphicsState];
+    NSRectClip(self.bounds);
 	if ([self isEffectiveAppareanceDarkAqua]==NO)
 		[[NSColor colorWithDeviceWhite:1.0 alpha:0.5] set];
 	else
@@ -36,6 +39,7 @@
 	NSRect tFrameRect=NSInsetRect([self bounds],-1,0);
 	
 	NSFrameRectWithWidthUsingOperation(tFrameRect, 1.0, NSCompositingOperationSourceOver);
+    [NSGraphicsContext restoreGraphicsState];
 }
 
 @end

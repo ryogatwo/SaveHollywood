@@ -27,7 +27,10 @@ in the screen saver host. If playback is blank, try a locally downloaded video
 in an accessible folder and reselect it in Options. Protected/DRM media and
 remote streaming URLs are not supported. Playback uses AVFoundation codecs.
 
-## What changed in 2.7.2 (13)
+## What changed in 2.7.3 (14)
+
+- Fixes faded options controls on modern macOS: section background drawing is
+  confined to its own bounds instead of washing out neighboring controls.
 
 - Stops lingering audio when exiting the saver or changing previews, including
   hosts that skip `stopAnimation` or reset `isAnimating` before cleanup.
@@ -114,13 +117,13 @@ After the checks and runtime review pass, commit the source and create a tag.
 Publish the disk image, ZIP and checksums from that exact source revision:
 
 ```sh
-git tag v2.7.2
+git tag v2.7.3
 git push origin main --tags
-gh release create v2.7.2 --repo ryogatwo/SaveHollywood \
-  --title 'SaveHollywood 2.7.2 — Apple Silicon and Intel' \
+gh release create v2.7.3 --repo ryogatwo/SaveHollywood \
+  --title 'SaveHollywood 2.7.3 — Apple Silicon and Intel' \
   --notes-file RELEASE_NOTES.md \
-  dist/SaveHollywood-2.7.2-universal.dmg \
-  dist/SaveHollywood-2.7.2-saver.zip dist/SHA256SUMS.txt
+  dist/SaveHollywood-2.7.3-universal.dmg \
+  dist/SaveHollywood-2.7.3-saver.zip dist/SHA256SUMS.txt
 ```
 
 GitHub Actions builds and smoke-tests an ad-hoc development artifact. Public

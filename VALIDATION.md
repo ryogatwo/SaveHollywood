@@ -1,3 +1,27 @@
+# SaveHollywood 2.7.3 validation — October 31, 2026
+
+## Options appearance
+
+- Observed the user's live Options sheet on macOS 15.7.2: enabled controls were
+  visibly washed out while accessibility correctly reported them as enabled.
+- Reproduced the drawing fault with an oversized dirty rectangle: SHSecondaryBox
+  painted outside its bounds. Modern AppKit allows dirty rectangles beyond a
+  view's bounds; the legacy section fill covered previously drawn siblings.
+- SHSecondaryBox now clips its drawing, including the border, to its bounds.
+  SHLightGrayBackgroundView limits its fill to the bounds/dirty-rect intersection.
+- A pixel regression verifies both that neighboring pixels stay untouched and
+  the intended background still draws inside the section. Passed after the fix.
+- The audio/video and lifecycle regression suite passed again on macOS 15.7.2.
+- Universal architecture and strict signature checks passed.
+- Apple accepted installer submission `2a56edfe-4825-4577-9b93-48317f8e58ed` and disk image
+  submission `05909253-74cf-420e-9ab8-08d802a47b17`; stapling/validation and Gatekeeper passed.
+- Installed the signed update on the host with the previous copy backed up.
+- Refreshed the cached host, reopened the actual System Settings Options sheet,
+  and visually verified normal contrast for enabled buttons, radio choices,
+  checkboxes and movie rows. Dependent controls retain their disabled styling.
+
+Drawing behavior reference: [Apple NSView clipsToBounds documentation](https://developer.apple.com/documentation/appkit/nsview/clipstobounds).
+
 # SaveHollywood 2.7.2 validation — October 31, 2026
 
 ## Audio shutdown regression

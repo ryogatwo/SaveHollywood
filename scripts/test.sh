@@ -11,3 +11,6 @@ xcrun clang -fobjc-arc -O1 -I SaveHollywood -framework Cocoa -framework ScreenSa
   -framework AVFoundation -framework CoreVideo -framework CoreMedia \
   Tests/Smoke.m -o "$stage/smoke"
 "$stage/smoke" "$stage/SaveHollywood.saver"
+
+xcrun clang -fobjc-arc -O1 -framework Cocoa Tests/Appearance.m -o "$stage/appearance"
+"$stage/appearance" "$stage/SaveHollywood.saver"

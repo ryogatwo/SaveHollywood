@@ -29,7 +29,7 @@
 	
 	[[NSColor colorWithDeviceWhite:0.915 alpha:0.8] set];
     
-    NSRectFillUsingOperation(dirtyRect, NSCompositingOperationSourceOver);
+	NSRectFillUsingOperation(NSIntersectionRect(dirtyRect, self.bounds), NSCompositingOperationSourceOver);
 }
 
 @end
