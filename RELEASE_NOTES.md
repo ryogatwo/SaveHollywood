@@ -1,13 +1,13 @@
-SaveHollywood 2.7.1 (12) has been tested in a macOS 27.2 Apple Silicon VM.
+SaveHollywood 2.7.2 (13) fixes audio continuing after exiting a full-screen preview or switching screen savers.
 
-- Fixes the installer shortcut and instructions for macOS 26 and later: System Settings → Wallpaper → Screen Saver → Custom → Other.
-- Existing copies are backed up with a `.saver.backup` extension so macOS does not register them as additional screen savers.
-- Retains universal Apple Silicon/Intel binaries and macOS 11 deployment target.
-- Passed runtime tests on macOS 27.2: bundle and options loading, fractional volume, old/new resume archives, video playback clock, metadata callbacks and repeated start/stop.
-- Native System Settings options and playback checks are recorded in VALIDATION.md.
+- Stops playback on system dismissal notifications and when a view leaves its window, including hosts that omit `stopAnimation`.
+- Cleanup runs even when macOS has already reset the animation flag. Players are paused, muted and disconnected from their media; retired players cannot keep producing audio.
+- Movie replacement also stops the previous player, and late completion callbacks cannot restart dismissed playback.
+- Retains the separate Settings thumbnail lifecycle, universal Apple Silicon/Intel binaries, and macOS 11 deployment target.
+- Regression tests generate a movie with H.264 video and AAC audio, retain its players, and verify media release after each shutdown path.
 
-Download **SaveHollywood-2.7.1-universal.dmg**, open **Install SaveHollywood.app**, and click **Install Screensaver**. Existing copies are backed up, and preferences are preserved.
+Download **SaveHollywood-2.7.2-universal.dmg**, open **Install SaveHollywood.app**, and click **Install Screensaver**. Existing copies are backed up and preferences are preserved. Close System Settings before upgrading. Restart your Mac once if an older cached copy continues playing audio; reopening Settings alone may retain the older screen-saver host.
 
-The screen saver, installer and disk image are Developer ID signed. The installer and disk image are Apple notarized and carry stapled tickets. A signed screen saver ZIP, checksums and notarization receipts are also provided.
+The saver, installer and disk image are Developer ID signed. The installer and disk image are Apple notarized with stapled tickets. The release includes the signed saver ZIP, checksums and notarization receipts.
 
-This remains a pre-release pending wider Intel, multi-display and OS testing. VM graphics are not equivalent to physical Mac display testing. Original SaveHollywood by Stephane Sudre / WhiteBox; independent derivative distributed under the retained upstream license and attribution, without WhiteBox endorsement.
+This remains a pre-release pending wider Intel, multi-display and OS testing. See VALIDATION.md for exact checks and limitations. Original SaveHollywood by Stephane Sudre / WhiteBox; independent derivative distributed under the retained upstream license and attribution, without WhiteBox endorsement.

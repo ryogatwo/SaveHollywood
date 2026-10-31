@@ -13,7 +13,8 @@ open **Install SaveHollywood.app**, and click **Install Screensaver**.
 On macOS 26 or later, open **System Settings → Wallpaper → Screen Saver**, choose **Custom**, then select SaveHollywood under **Other**. On earlier releases, select SaveHollywood in **System Settings → Screen Saver** and open its options
 to choose videos or folders. The installer keeps an existing copy as a uniquely
 named `.saver.backup` folder in `~/Library/Screen Savers`; remove that backup after testing.
-Close and reopen System Settings if it caches the old screen saver.
+Close System Settings before upgrading. If an older cached copy keeps playing
+audio, restart the Mac once after installing the update.
 
 The release also provides a signed `.saver` ZIP for direct installation. The
 notarized disk image is the preferred download because it carries a stapled Apple
@@ -26,7 +27,12 @@ in the screen saver host. If playback is blank, try a locally downloaded video
 in an accessible folder and reselect it in Options. Protected/DRM media and
 remote streaming URLs are not supported. Playback uses AVFoundation codecs.
 
-## What changed in 2.7.1 (12)
+## What changed in 2.7.2 (13)
+
+- Stops lingering audio when exiting the saver or changing previews, including
+  hosts that skip `stopAnimation` or reset `isAnimating` before cleanup.
+  Dismissal notifications and view removal stop playback; players are muted,
+  paused and detached from their media, and stale completions cannot restart them.
 
 - Corrected installer navigation and instructions for macOS 26/27 Wallpaper settings; tested installation, options, runtime playback and the full-screen system preview in a macOS 27.2 VM.
 
@@ -108,13 +114,13 @@ After the checks and runtime review pass, commit the source and create a tag.
 Publish the disk image, ZIP and checksums from that exact source revision:
 
 ```sh
-git tag v2.7.1
+git tag v2.7.2
 git push origin main --tags
-gh release create v2.7.1 --repo ryogatwo/SaveHollywood \
-  --title 'SaveHollywood 2.7.1 — Apple Silicon and Intel' \
+gh release create v2.7.2 --repo ryogatwo/SaveHollywood \
+  --title 'SaveHollywood 2.7.2 — Apple Silicon and Intel' \
   --notes-file RELEASE_NOTES.md \
-  dist/SaveHollywood-2.7.1-universal.dmg \
-  dist/SaveHollywood-2.7.1-saver.zip dist/SHA256SUMS.txt
+  dist/SaveHollywood-2.7.2-universal.dmg \
+  dist/SaveHollywood-2.7.2-saver.zip dist/SHA256SUMS.txt
 ```
 
 GitHub Actions builds and smoke-tests an ad-hoc development artifact. Public

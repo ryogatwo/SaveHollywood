@@ -1,3 +1,37 @@
+# SaveHollywood 2.7.2 validation — October 31, 2026
+
+## Audio shutdown regression
+
+A user reported video audio continuing after leaving a full-screen preview and
+changing screen savers. The previous regression suite did not include an audio
+track or emulate a host that omits/reset animation lifecycle callbacks.
+
+- Before the fix, the new retained-player test failed when the host reported
+  `isAnimating == NO` before invoking cleanup.
+- The updated test generates H.264 video with an AAC audio track and verifies
+  a ready player item and advancing playback clock before testing shutdown.
+- Cleanup now runs independently of the host animation flag. It also handles
+  view removal and distributed `com.apple.screensaver.willstop` / `didstop`
+  notifications for full-screen instances, without stopping a separate preview.
+- Retired players are paused, muted and disconnected from their items/layers.
+  Tests hold strong player references and require that dismissed, detached and
+  replaced players are muted with no current media item. Late callbacks cannot
+  restart playback. AVFoundation can report a stale desired rate for an empty
+  player in the VM; silence is verified by mute plus absence of media instead.
+- Release build and regression tests passed on Apple Silicon macOS 15.7.2.
+- The same compiled saver and audio regression executable passed in the macOS
+  27.2 (26B123) Parallels VM as its desktop user. The VM retained a stale desired
+  rate for one empty player; mute and media-detachment assertions passed.
+- Universal arm64/x86_64 binaries passed strict signature/architecture checks.
+- Apple accepted installer submission `4672d21a-0882-42e8-8d50-4951eab8e292` and disk image
+  submission `25c92909-936d-4b3d-96f2-64a0ff987e78`. Both tickets were stapled and validated,
+  and Gatekeeper accepted both as Notarized Developer ID.
+
+The dismissal tests simulate lifecycle signals against the actual compiled saver.
+They do not constitute a recording of audible output or a new physical-display
+System Settings session. Existing cached 2.7.1 host instances must be replaced;
+restart the Mac once after upgrading if an older instance keeps playing audio.
+
 # SaveHollywood 2.7.1 validation — October 30, 2026
 
 ## macOS 27.2 guest validation

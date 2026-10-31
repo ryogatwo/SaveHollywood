@@ -53,6 +53,7 @@ NSUInteger random_no(NSUInteger n)
     NSFileManager * _fileManager;
     BOOL _preview;
     BOOL _mainScreen;
+    BOOL _playbackActive;
     
     SHMovieScaling _scaling;
     BOOL _randomPosition;
@@ -103,6 +104,8 @@ NSUInteger random_no(NSUInteger n)
 
 - (void)showMetadata:(NSTimer *)inTimer;
 - (void)hideMetadata:(id)object;
+- (void)screenSaverWillStop:(NSNotification *)notification;
+- (void)stopCurrentPlayer;
 
 
 
@@ -112,7 +115,9 @@ NSUInteger random_no(NSUInteger n)
 
 - (void)dealloc
 {
+    [self stopAnimation];
     [[NSNotificationCenter defaultCenter] removeObserver:self];
+    [[NSDistributedNotificationCenter defaultCenter] removeObserver:self];
     [NSObject cancelPreviousPerformRequestsWithTarget:self];
     [_configurationWindowController release];
     [super dealloc];
@@ -271,11 +276,49 @@ NSUInteger random_no(NSUInteger n)
 
 #pragma mark -
 
+- (void)viewWillMoveToWindow:(NSWindow *)newWindow
+{
+    // The modern host can detach a preview or dismissed saver without stopAnimation.
+    if (self.window != nil && self.window != newWindow)
+        [self stopAnimation];
+    [super viewWillMoveToWindow:newWindow];
+}
+
+- (void)screenSaverWillStop:(NSNotification *)notification
+{
+    if (![NSThread isMainThread])
+    {
+        [self performSelectorOnMainThread:@selector(screenSaverWillStop:) withObject:notification waitUntilDone:NO];
+        return;
+    }
+    [self stopAnimation];
+}
+
+- (void)stopCurrentPlayer
+{
+    AVPlayer *player=_AVPlayerLayer.player;
+    [player pause];
+    player.muted=YES;
+    [[SHPlayingAssetsRegister sharedRegister] removeAsset:((AVURLAsset *)player.currentItem.asset).URL];
+    [player replaceCurrentItemWithPlayerItem:nil];
+    // Item replacement can update the desired rate; leave the retired player paused.
+    [player pause];
+    _AVPlayerLayer.player=nil;
+    [_AVPlayerLayer removeFromSuperlayer];
+    _AVPlayerLayer=nil;
+}
+
 - (void)startAnimation
 {
-#ifndef __TEST_SCREENSAVER__
-    if (self.isAnimating) return;
-#endif
+    if (_playbackActive) return;
+    _playbackActive=YES;
+    // Full-screen dismissal must not freeze a separate Settings thumbnail.
+    if (!_preview)
+    {
+        NSDistributedNotificationCenter *center=[NSDistributedNotificationCenter defaultCenter];
+        [center addObserver:self selector:@selector(screenSaverWillStop:) name:@"com.apple.screensaver.willstop" object:nil suspensionBehavior:NSNotificationSuspensionBehaviorDeliverImmediately];
+        [center addObserver:self selector:@selector(screenSaverWillStop:) name:@"com.apple.screensaver.didstop" object:nil suspensionBehavior:NSNotificationSuspensionBehaviorDeliverImmediately];
+    }
     if (!_preview && self.window.screen != nil)
         _mainScreen=([self.window.screen isEqual:[NSScreen screens].firstObject]);
 #ifdef __TEST_SCREENSAVER__
@@ -564,9 +607,12 @@ NSUInteger random_no(NSUInteger n)
 
 - (void)stopAnimation
 {
-#ifndef __TEST_SCREENSAVER__
-    if (!self.isAnimating) return;
-#endif
+    // Never gate cleanup on the host's isAnimating flag: it may already be reset.
+    if (!_playbackActive && _AVPlayerLayer==nil && _backgroundLayer==nil && _timer==nil) return;
+    _playbackActive=NO;
+    [_AVPlayerLayer.player pause];
+    _AVPlayerLayer.player.muted=YES;
+    [[NSDistributedNotificationCenter defaultCenter] removeObserver:self];
 #ifdef __TEST_SCREENSAVER__
     NSUserDefaults *tDefaults = [NSUserDefaults standardUserDefaults];
 #else
@@ -635,9 +681,7 @@ NSUInteger random_no(NSUInteger n)
     [_currentAssetMetadataCopyrights release];
     _currentAssetMetadataCopyrights=nil;
     
-    [_AVPlayerLayer.player pause];
-    
-    [[SHPlayingAssetsRegister sharedRegister] removeAsset:((AVURLAsset *)_AVPlayerLayer.player.currentItem.asset).URL];
+    [self stopCurrentPlayer];
     
     if (_timer!=nil)
     {
@@ -668,6 +712,7 @@ NSUInteger random_no(NSUInteger n)
 
 - (BOOL)playNextAsset:(NSDictionary *)preferredNextAssetDictionary canPlaySameRandomMovieTwice:(BOOL)inCanPlaySameRandomMovieTwice
 {
+    if (!_playbackActive) return NO;
     NSUInteger tCount=[__assetsArray count];
     AVURLAsset * tAsset=nil;
     NSUInteger tNextIndex=__arrayIndex;
@@ -793,8 +838,7 @@ NSUInteger random_no(NSUInteger n)
     [tAVPlayerItem release];
     
     
-    [_AVPlayerLayer removeFromSuperlayer];
-    _AVPlayerLayer=nil;
+    [self stopCurrentPlayer];
     
     _AVPlayerLayer=[AVPlayerLayer playerLayerWithPlayer:tAVPlayer];
     
@@ -997,7 +1041,7 @@ NSUInteger random_no(NSUInteger n)
         
         [tAVPlayerItem.asset loadValuesAsynchronouslyForKeys:[NSArray arrayWithObject:@"availableMetadataFormats"] completionHandler:^(){
             dispatch_async(dispatch_get_main_queue(), ^{
-                if (_AVPlayerLayer.player.currentItem != tAVPlayerItem) return;
+                if (!_playbackActive || _AVPlayerLayer.player.currentItem != tAVPlayerItem) return;
          
              if ([tAVPlayerItem.asset statusOfValueForKey:@"availableMetadataFormats" error:NULL]==AVKeyValueStatusLoaded)
              {
@@ -1095,7 +1139,7 @@ NSUInteger random_no(NSUInteger n)
 
 - (void)playerItemDidPlayToEndMainThread:(AVPlayerItem *)inPlayerItem
 {
-    if (inPlayerItem==_AVPlayerLayer.player.currentItem)
+    if (_playbackActive && inPlayerItem!=nil && inPlayerItem==_AVPlayerLayer.player.currentItem)
     {
         // Update assets playing list
         
