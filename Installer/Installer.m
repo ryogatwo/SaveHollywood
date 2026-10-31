@@ -21,7 +21,7 @@
     NSURL *library=[fm URLsForDirectory:NSLibraryDirectory inDomains:NSUserDomainMask].firstObject;
     NSURL *folder=[library URLByAppendingPathComponent:@"Screen Savers" isDirectory:YES];
     NSURL *destination=[folder URLByAppendingPathComponent:@"SaveHollywood.saver" isDirectory:YES];
-    NSURL *backup=[folder URLByAppendingPathComponent:[NSString stringWithFormat:@"SaveHollywood-backup-%@.saver",NSUUID.UUID.UUIDString]];
+    NSURL *backup=[folder URLByAppendingPathComponent:[NSString stringWithFormat:@"SaveHollywood-backup-%@.saver.backup",NSUUID.UUID.UUIDString]];
     NSURL *stage=[folder URLByAppendingPathComponent:[NSString stringWithFormat:@".SaveHollywood-%@.saver",NSUUID.UUID.UUIDString]];
     BOOL backedUp=NO;
     BOOL ok=source && [fm createDirectoryAtURL:folder withIntermediateDirectories:YES attributes:nil error:&error];

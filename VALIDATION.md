@@ -25,17 +25,19 @@ Environment: Apple Silicon host, Parallels Desktop 27.1.0 (58756), new macOS
 - Version 2.7.1 has universal arm64/x86_64 saver and installer binaries, strict
   signature verification, and hardened runtime with secure timestamps.
 - Apple accepted the 2.7.1 installer submission
-  `d4a5850a-4cf9-44b1-91ea-53a5f2af8b6f` and disk image submission
-  `3d3aa6cb-47bd-427c-bcf9-e01d1aef965e`. Tickets were stapled/validated and
+  `8985eab3-492b-4708-8615-fb184d26332d` and disk image submission
+  `57ad17e5-2710-424f-8e6a-2211879c9d53`. Tickets were stapled/validated and
   Gatekeeper accepted both. The guest also accepted the 2.7.1 installer.
 - The native installer successfully upgraded the guest from 2.7.0 to 2.7.1,
   created the prior-version backup, and displayed the corrected instructions.
+  Backups now use `.saver.backup` so macOS does not register them as duplicate
+  installed screen savers; the earlier VM test backup was renamed accordingly.
   The same runtime suite passed again against the upgraded bundle.
 
-The small inline System Settings thumbnail did not consistently refresh after
-changing the selected movie in this VM. Clicking it launched the working
-full-screen preview. This observation is retained as a limitation rather than
-claiming every preview/display path has been verified.
+The inline System Settings thumbnail was initially stale after changing the movie.
+Reopening System Settings refreshed it and displayed the animated test clip.
+Both inline and full-screen previews were then visibly verified in the guest.
+Close and reopen System Settings if it caches a previous screen-saver state.
 
 Remaining checks: Intel hardware execution, macOS 11–14 and 26 runtime,
 multiple physical displays, sleep/wake, audible output, protected folders,

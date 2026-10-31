@@ -12,7 +12,7 @@ Download the disk image from [Releases](https://github.com/ryogatwo/SaveHollywoo
 open **Install SaveHollywood.app**, and click **Install Screensaver**.
 On macOS 26 or later, open **System Settings → Wallpaper → Screen Saver**, choose **Custom**, then select SaveHollywood under **Other**. On earlier releases, select SaveHollywood in **System Settings → Screen Saver** and open its options
 to choose videos or folders. The installer keeps an existing copy as a uniquely
-named backup in `~/Library/Screen Savers`; remove that backup after testing.
+named `.saver.backup` folder in `~/Library/Screen Savers`; remove that backup after testing.
 Close and reopen System Settings if it caches the old screen saver.
 
 The release also provides a signed `.saver` ZIP for direct installation. The

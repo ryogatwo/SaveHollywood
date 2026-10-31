@@ -1,6 +1,7 @@
 SaveHollywood 2.7.1 (12) has been tested in a macOS 27.2 Apple Silicon VM.
 
 - Fixes the installer shortcut and instructions for macOS 26 and later: System Settings → Wallpaper → Screen Saver → Custom → Other.
+- Existing copies are backed up with a `.saver.backup` extension so macOS does not register them as additional screen savers.
 - Retains universal Apple Silicon/Intel binaries and macOS 11 deployment target.
 - Passed runtime tests on macOS 27.2: bundle and options loading, fractional volume, old/new resume archives, video playback clock, metadata callbacks and repeated start/stop.
 - Native System Settings options and playback checks are recorded in VALIDATION.md.
