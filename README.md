@@ -10,7 +10,7 @@ upstream provenance and [LICENSE](LICENSE) for redistribution conditions.
 
 Download the disk image from [Releases](https://github.com/ryogatwo/SaveHollywood/releases),
 open **Install SaveHollywood.app**, and click **Install Screensaver**.
-Select SaveHollywood in **System Settings → Screen Saver** and open its options
+On macOS 26 or later, open **System Settings → Wallpaper → Screen Saver**, choose **Custom**, then select SaveHollywood under **Other**. On earlier releases, select SaveHollywood in **System Settings → Screen Saver** and open its options
 to choose videos or folders. The installer keeps an existing copy as a uniquely
 named backup in `~/Library/Screen Savers`; remove that backup after testing.
 Close and reopen System Settings if it caches the old screen saver.
@@ -26,7 +26,9 @@ in the screen saver host. If playback is blank, try a locally downloaded video
 in an accessible folder and reselect it in Options. Protected/DRM media and
 remote streaming URLs are not supported. Playback uses AVFoundation codecs.
 
-## What changed in 2.7.0 (11)
+## What changed in 2.7.1 (12)
+
+- Corrected installer navigation and instructions for macOS 26/27 Wallpaper settings; tested installation, options, runtime playback and the full-screen system preview in a macOS 27.2 VM.
 
 - Universal Apple Silicon/Intel build, current installed SDK, macOS 11 minimum,
   SDK-relative frameworks, shared Xcode scheme and reproducible build scripts.
@@ -106,13 +108,13 @@ After the checks and runtime review pass, commit the source and create a tag.
 Publish the disk image, ZIP and checksums from that exact source revision:
 
 ```sh
-git tag v2.7.0
+git tag v2.7.1
 git push origin main --tags
-gh release create v2.7.0 --repo ryogatwo/SaveHollywood \
-  --title 'SaveHollywood 2.7.0 — Apple Silicon and Intel' \
+gh release create v2.7.1 --repo ryogatwo/SaveHollywood \
+  --title 'SaveHollywood 2.7.1 — Apple Silicon and Intel' \
   --notes-file RELEASE_NOTES.md \
-  dist/SaveHollywood-2.7.0-universal.dmg \
-  dist/SaveHollywood-2.7.0-saver.zip dist/SHA256SUMS.txt
+  dist/SaveHollywood-2.7.1-universal.dmg \
+  dist/SaveHollywood-2.7.1-saver.zip dist/SHA256SUMS.txt
 ```
 
 GitHub Actions builds and smoke-tests an ad-hoc development artifact. Public

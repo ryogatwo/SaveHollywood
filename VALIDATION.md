@@ -1,6 +1,50 @@
-# Initial 2.7.0 validation — October 30, 2026
+# SaveHollywood 2.7.1 validation — October 30, 2026
 
-## Verified
+## macOS 27.2 guest validation
+
+Environment: Apple Silicon host, Parallels Desktop 27.1.0 (58756), new macOS
+27.2 (26B123) VM with 4 CPUs and 8 GB RAM, Parallels Tools installed.
+
+- The 2.7.0 published disk image downloaded inside the VM and matched its
+  published SHA-256 checksum. Strict signature checks passed; Gatekeeper
+  returned `accepted`, source `Notarized Developer ID`.
+- The installer launched normally and installed into the test user's
+  `~/Library/Screen Savers`. SaveHollywood appeared under Wallpaper → Screen
+  Saver → Custom → Other. Its native configuration sheet loaded successfully.
+- A generated animated H.264 test movie was selected using the native file
+  picker and saved through Options. The full-screen preview launched from
+  System Settings displayed the changing movie frames and continued looping.
+  Escape returned to settings normally.
+- The isolated smoke-test executable also passed on the guest: bundle loading,
+  configuration nib, fractional volume, legacy/new secure resume archives,
+  ready player item, advancing playback clock, metadata callbacks, and repeated
+  start/stop with timer cleanup. Tests used a temporary bundle identifier.
+- Found and fixed an installer navigation issue: on macOS 26 and later the
+  old Screen Saver settings URL opened General. Version 2.7.1 uses the verified
+  `com.apple.Wallpaper-Settings.extension` identifier and describes the new path.
+- Version 2.7.1 has universal arm64/x86_64 saver and installer binaries, strict
+  signature verification, and hardened runtime with secure timestamps.
+- Apple accepted the 2.7.1 installer submission
+  `d4a5850a-4cf9-44b1-91ea-53a5f2af8b6f` and disk image submission
+  `3d3aa6cb-47bd-427c-bcf9-e01d1aef965e`. Tickets were stapled/validated and
+  Gatekeeper accepted both. The guest also accepted the 2.7.1 installer.
+- The native installer successfully upgraded the guest from 2.7.0 to 2.7.1,
+  created the prior-version backup, and displayed the corrected instructions.
+  The same runtime suite passed again against the upgraded bundle.
+
+The small inline System Settings thumbnail did not consistently refresh after
+changing the selected movie in this VM. Clicking it launched the working
+full-screen preview. This observation is retained as a limitation rather than
+claiming every preview/display path has been verified.
+
+Remaining checks: Intel hardware execution, macOS 11–14 and 26 runtime,
+multiple physical displays, sleep/wake, audible output, protected folders,
+external media, French UI rendering, and prolonged playback. VM graphics are
+not equivalent to physical Mac display testing. This remains a pre-release.
+
+## Original 2.7.0 validation
+
+### Verified
 
 - Xcode 26.3 (17C529), macOS SDK 26.2; Release build succeeded.
 - Runtime smoke tests ran natively on Apple Silicon, macOS 15.7.2 (24G325).
@@ -29,11 +73,12 @@
   The original history is retained via an ancestry-only merge after the source
   snapshot import and modernization commit; the upstream remote is preserved.
 
-## Limits and follow-up
+### Initial limits and follow-up
 
 This initial release is marked **pre-release** pending broader manual testing.
 A current SDK build is not evidence of full macOS 26 runtime compatibility.
-The following have not been verified in this session:
+The following were not verified at the time of the initial 2.7.0 release
+(the later VM checks above supersede overlapping items):
 
 - Actual System Settings installation and full-screen ScreenSaverEngine sessions.
 - macOS 26, macOS 11–14, or runtime execution on Intel hardware.

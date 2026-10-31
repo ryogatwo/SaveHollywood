@@ -8,7 +8,7 @@
 - (void)applicationDidFinishLaunching:(NSNotification *)notification {
     self.window=[[NSWindow alloc] initWithContentRect:NSMakeRect(0,0,500,230)
         styleMask:NSWindowStyleMaskTitled|NSWindowStyleMaskClosable backing:NSBackingStoreBuffered defer:NO];
-    self.window.title=@"Install SaveHollywood 2.7";
+    self.window.title=@"Install SaveHollywood 2.7.1";
     NSTextField *label=[NSTextField wrappingLabelWithString:@"Play your videos as a screen saver.\n\nInstalls SaveHollywood for your user account. An existing copy is backed up beside it. Your settings are preserved.\n\nOriginal software by Stephane Sudre / WhiteBox."];
     label.frame=NSMakeRect(25,75,450,130); [self.window.contentView addSubview:label];
     NSButton *button=[NSButton buttonWithTitle:@"Install Screensaver" target:self action:@selector(install:)];
@@ -34,10 +34,15 @@
         if (backedUp) [fm moveItemAtURL:backup toURL:destination error:NULL];
         [fm removeItemAtURL:stage error:NULL];
     }
+    BOOL modernSettings=[NSProcessInfo.processInfo isOperatingSystemAtLeastVersion:(NSOperatingSystemVersion){26,0,0}];
+    NSString *instructions=modernSettings?@"Open System Settings → Wallpaper → Screen Saver, choose Custom, and select SaveHollywood under Other. Close and reopen System Settings if the previous version is cached. Older backup copies can be removed after testing.":@"Select SaveHollywood in System Settings → Screen Saver. Close and reopen System Settings if the previous version is cached. Older backup copies can be removed after testing.";
     NSAlert *alert=[NSAlert new]; alert.messageText=ok?@"SaveHollywood installed":@"Installation failed";
-    alert.informativeText=ok?@"Select SaveHollywood in System Settings → Screen Saver. Close and reopen System Settings if the previous version is cached. Older backup copies can be removed after testing.":(error.localizedDescription?:@"The screen saver could not be copied.");
+    alert.informativeText=ok?instructions:(error.localizedDescription?:@"The screen saver could not be copied.");
     [alert runModal];
-    if (ok) [NSWorkspace.sharedWorkspace openURL:[NSURL URLWithString:@"x-apple.systempreferences:com.apple.ScreenSaver-Settings.extension"]];
+    if (ok) {
+        NSString *settingsURL=modernSettings?@"x-apple.systempreferences:com.apple.Wallpaper-Settings.extension":@"x-apple.systempreferences:com.apple.ScreenSaver-Settings.extension";
+        [NSWorkspace.sharedWorkspace openURL:[NSURL URLWithString:settingsURL]];
+    }
 }
 - (BOOL)applicationShouldTerminateAfterLastWindowClosed:(NSApplication *)sender { return YES; }
 @end

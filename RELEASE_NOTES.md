@@ -1,12 +1,12 @@
-SaveHollywood 2.7.0 (11) modernizes the original Stephane Sudre / WhiteBox screen saver for Apple Silicon and Intel Macs.
+SaveHollywood 2.7.1 (12) has been tested in a macOS 27.2 Apple Silicon VM.
 
-- Universal arm64 + x86_64 `.saver`, macOS 11 minimum, built with Xcode 26.3 and the macOS 26.2 SDK.
-- Current SDK/framework references and shared Xcode build scheme.
-- Metadata callback, repeated start/stop, resume archive and fractional volume fixes.
-- Original settings identifier, English/French options and original attribution retained.
+- Fixes the installer shortcut and instructions for macOS 26 and later: System Settings → Wallpaper → Screen Saver → Custom → Other.
+- Retains universal Apple Silicon/Intel binaries and macOS 11 deployment target.
+- Passed runtime tests on macOS 27.2: bundle and options loading, fractional volume, old/new resume archives, video playback clock, metadata callbacks and repeated start/stop.
+- Native System Settings options and playback checks are recorded in VALIDATION.md.
 
-Download **SaveHollywood-2.7.0-universal.dmg**, open **Install SaveHollywood.app**, and click **Install Screensaver**. Select SaveHollywood in macOS Screen Saver settings. Existing copies are backed up and preferences are preserved.
+Download **SaveHollywood-2.7.1-universal.dmg**, open **Install SaveHollywood.app**, and click **Install Screensaver**. Existing copies are backed up, and preferences are preserved.
 
-The installer, screen saver and disk image are Developer ID signed. Apple notarization and Gatekeeper verification results are recorded in VALIDATION.md. The installer and disk image carry stapled tickets. A signed screen saver ZIP and SHA-256 checksums are also provided.
+The screen saver, installer and disk image are Developer ID signed. The installer and disk image are Apple notarized and carry stapled tickets. A signed screen saver ZIP, checksums and notarization receipts are also provided.
 
-Validated with a local runtime smoke test including actual generated movie playback and both architecture slices. Wider OS, Intel hardware and multi-display testing remain outstanding; see VALIDATION.md. This is an independent derivative of packagesdev/savehollywood, distributed under its original source-header license, with no WhiteBox endorsement.
+This remains a pre-release pending wider Intel, multi-display and OS testing. VM graphics are not equivalent to physical Mac display testing. Original SaveHollywood by Stephane Sudre / WhiteBox; independent derivative distributed under the retained upstream license and attribution, without WhiteBox endorsement.
