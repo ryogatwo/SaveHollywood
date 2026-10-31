@@ -1,0 +1,11 @@
+//
+// Prefix header for all source files of the 'SaveHollywood' target in the 'SaveHollywood' project
+//
+
+#ifdef __OBJC__
+    #import <Cocoa/Cocoa.h>
+#endif
+
+#ifndef NSAppKitVersionNumber10_14
+#define NSAppKitVersionNumber10_14 1641.10
+#endif
