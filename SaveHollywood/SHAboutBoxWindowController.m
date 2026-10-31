@@ -37,7 +37,7 @@
     
     _versionLabel.stringValue=[NSString stringWithFormat:NSLocalizedStringFromTableInBundle(@"Version %@ (%@)",@"Localized",tBundle,@""),tInfoDictionary[@"CFBundleShortVersionString"],tInfoDictionary[@"CFBundleVersion"]];
     
-    _copyrightLabel.stringValue=[NSString stringWithFormat:NSLocalizedStringFromTableInBundle(@"Legal terms",@"Localized",tBundle,@""),[[NSCalendarDate date] yearOfCommonEra]];
+    _copyrightLabel.stringValue=[NSString stringWithFormat:NSLocalizedStringFromTableInBundle(@"Legal terms",@"Localized",tBundle,@""),[[NSCalendar currentCalendar] component:NSCalendarUnitYear fromDate:[NSDate date]]];
 }
 
 @end

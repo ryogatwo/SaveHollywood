@@ -1,0 +1,19 @@
+name: Build universal screen saver
+on:
+  push:
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  build:
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build and verify Apple Silicon and Intel
+        run: bash scripts/build.sh
+      - name: Smoke test bundle, settings, playback and lifecycle
+        run: bash scripts/test.sh
+      - uses: actions/upload-artifact@v4
+        with:
+          name: SaveHollywood-universal-development
+          path: build/DerivedData/Build/Products/Release/SaveHollywood.saver

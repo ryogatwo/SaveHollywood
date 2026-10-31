@@ -29,13 +29,13 @@
 	else
 		[[NSColor colorWithDeviceWhite:0.0 alpha:0.15] set];
 	
-	NSRectFillUsingOperation(dirtyRect,NSCompositeSourceOver);
+	NSRectFillUsingOperation(dirtyRect,NSCompositingOperationSourceOver);
 	
 	[[NSColor colorWithDeviceWhite:0.0 alpha:0.10] set];
 	
 	NSRect tFrameRect=NSInsetRect([self bounds],-1,0);
 	
-	NSFrameRectWithWidthUsingOperation(tFrameRect, 1.0, NSCompositeSourceOver);
+	NSFrameRectWithWidthUsingOperation(tFrameRect, 1.0, NSCompositingOperationSourceOver);
 }
 
 @end

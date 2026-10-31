@@ -69,10 +69,6 @@ NSUInteger random_no(NSUInteger n)
     BOOL _audioMainScreen;
     SHMovieAudioVolumeMode _volumeMode;
     float _volumeLevel;
-    
-	// Workaround for Apple bug in Sierra
-	
-	BOOL _useKeyedArchiverForLeftOffData;
 	
 	// Layers
     
@@ -114,6 +110,14 @@ NSUInteger random_no(NSUInteger n)
 
 @implementation SaveHollywoodView
 
+- (void)dealloc
+{
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
+    [NSObject cancelPreviousPerformRequestsWithTarget:self];
+    [_configurationWindowController release];
+    [super dealloc];
+}
+
 #pragma mark -
 
 #ifdef __TEST_SCREENSAVER__
@@ -151,15 +155,7 @@ NSUInteger random_no(NSUInteger n)
     
     if (self!=nil)
     {
-		SInt32 tMajorVersion,tMinorVersion,tBugFixVersion;
-		
-		Gestalt(gestaltSystemVersionMajor,&tMajorVersion);
-		Gestalt(gestaltSystemVersionMinor,&tMinorVersion);
-		Gestalt(gestaltSystemVersionBugFix,&tBugFixVersion);
-		
-		
-		_useKeyedArchiverForLeftOffData=(tMajorVersion>10 || (tMajorVersion==10 && tMinorVersion>=12));
-		
+
 		[self setAnimationTimeInterval:1.0];
         
         _fileManager=[NSFileManager defaultManager];
@@ -277,6 +273,11 @@ NSUInteger random_no(NSUInteger n)
 
 - (void)startAnimation
 {
+#ifndef __TEST_SCREENSAVER__
+    if (self.isAnimating) return;
+#endif
+    if (!_preview && self.window.screen != nil)
+        _mainScreen=([self.window.screen isEqual:[NSScreen screens].firstObject]);
 #ifdef __TEST_SCREENSAVER__
     NSUserDefaults *tDefaults = [NSUserDefaults standardUserDefaults];
 #else
@@ -491,10 +492,7 @@ NSUInteger random_no(NSUInteger n)
                             {
 								NSString * tScreenKey;
 								
-								if (_useKeyedArchiverForLeftOffData==YES)
-									tScreenKey=[NSString stringWithFormat:@"%@%lu",SHScreenKeyKeyed,(unsigned long)tScreenIndex];
-								else
-									tScreenKey=[NSString stringWithFormat:@"%@%lu",SHScreenKey,(unsigned long)tScreenIndex];
+								tScreenKey=[NSString stringWithFormat:@"%@%lu",SHScreenKeyKeyed,(unsigned long)tScreenIndex];
 								
 								if (tSettings.startWhereLeftOff==YES)
                                 {
@@ -502,10 +500,7 @@ NSUInteger random_no(NSUInteger n)
                                     
                                     if (tData!=nil)
                                     {
-										if (_useKeyedArchiverForLeftOffData==YES)
-											tLastKnownAssetDictionary=[NSKeyedUnarchiver unarchiveObjectWithData:tData];
-										else
-											tLastKnownAssetDictionary=[NSUnarchiver unarchiveObjectWithData:tData];
+										tLastKnownAssetDictionary=[NSKeyedUnarchiver unarchivedObjectOfClasses:[NSSet setWithObjects:[NSDictionary class], [NSString class], [NSURL class], [NSValue class], [NSNumber class], nil] fromData:tData error:NULL];
                                         
                                         if (tLastKnownAssetDictionary==nil)
                                             NSLog(@"Error when unarchiving last known asset for %@",tScreenKey);
@@ -569,6 +564,9 @@ NSUInteger random_no(NSUInteger n)
 
 - (void)stopAnimation
 {
+#ifndef __TEST_SCREENSAVER__
+    if (!self.isAnimating) return;
+#endif
 #ifdef __TEST_SCREENSAVER__
     NSUserDefaults *tDefaults = [NSUserDefaults standardUserDefaults];
 #else
@@ -578,7 +576,7 @@ NSUInteger random_no(NSUInteger n)
 	
 	SHSettings * tSettings=[SHSettings settings];
 	
-    [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(hideMetadata:) object:nil];
+    [NSObject cancelPreviousPerformRequestsWithTarget:self];
     
     // Remove observers
     
@@ -600,10 +598,7 @@ NSUInteger random_no(NSUInteger n)
         {
 			NSString * tScreenKey;
 			
-			if (_useKeyedArchiverForLeftOffData==YES)
-				tScreenKey=[NSString stringWithFormat:@"%@%lu",SHScreenKeyKeyed,(unsigned long)tScreenIndex];
-			else
-				tScreenKey=[NSString stringWithFormat:@"%@%lu",SHScreenKey,(unsigned long)tScreenIndex];
+			tScreenKey=[NSString stringWithFormat:@"%@%lu",SHScreenKeyKeyed,(unsigned long)tScreenIndex];
             
             if (tSettings.startWhereLeftOff==YES)
             {
@@ -619,10 +614,7 @@ NSUInteger random_no(NSUInteger n)
 					
 					NSData * tData=nil;
 					
-					if (_useKeyedArchiverForLeftOffData==YES)
-						tData=[NSKeyedArchiver archivedDataWithRootObject:tLastAssetDictionary];
-                    else
-						tData=[NSArchiver archivedDataWithRootObject:tLastAssetDictionary];
+					tData=[NSKeyedArchiver archivedDataWithRootObject:tLastAssetDictionary requiringSecureCoding:YES error:NULL];
 						
                     if (tData!=nil)
                         [tDefaults setObject:tData forKey:tScreenKey];
@@ -822,7 +814,13 @@ NSUInteger random_no(NSUInteger n)
     
     if (_scaling==SHMovieScaleNone)
     {
-        CGSize tAssetSize=tAsset.naturalSize;
+        AVAssetTrack *tVideoTrack=[[tAsset tracksWithMediaType:AVMediaTypeVideo] firstObject];
+        CGSize tAssetSize=tBackgroundFrame.size;
+        if (tVideoTrack!=nil)
+        {
+            CGRect tVideoRect=CGRectApplyAffineTransform((CGRect){CGPointZero,tVideoTrack.naturalSize},tVideoTrack.preferredTransform);
+            tAssetSize=CGSizeMake(fabs(tVideoRect.size.width),fabs(tVideoRect.size.height));
+        }
         
         CGFloat tRatio=tAssetSize.width/tBackgroundFrame.size.width;
         CGFloat tYRatio=tAssetSize.height/tBackgroundFrame.size.height;
@@ -998,6 +996,8 @@ NSUInteger random_no(NSUInteger n)
         }
         
         [tAVPlayerItem.asset loadValuesAsynchronouslyForKeys:[NSArray arrayWithObject:@"availableMetadataFormats"] completionHandler:^(){
+            dispatch_async(dispatch_get_main_queue(), ^{
+                if (_AVPlayerLayer.player.currentItem != tAVPlayerItem) return;
          
              if ([tAVPlayerItem.asset statusOfValueForKey:@"availableMetadataFormats" error:NULL]==AVKeyValueStatusLoaded)
              {
@@ -1050,6 +1050,7 @@ NSUInteger random_no(NSUInteger n)
                      }
                  }
              }
+            });
          }];
     }
     
@@ -1163,7 +1164,7 @@ NSUInteger random_no(NSUInteger n)
     [self performSelector:@selector(playerItemDidPlayToEndMainThread:)
                  onThread:[NSThread mainThread]
                withObject:tPlayerItem
-            waitUntilDone:YES];
+            waitUntilDone:NO];
 }
 
 #pragma mark - Notifications

@@ -19,3 +19,14 @@ DerivedData
 
 #CocoaPods
 Pods
+
+# Local release products and notarization receipts
+/build/
+/dist/
+*.dmg
+*.zip
+*.p12
+*.p8
+*.cer
+*.key
+.env*

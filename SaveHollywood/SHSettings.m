@@ -104,11 +104,11 @@ static BOOL sSettingsAreLocked=NO;
 				_backgroundColor=[[NSColor colorFromString:tString] copy];
 			
 			if (_backgroundColor==nil)
-				_backgroundColor=[NSColor blackColor];
+				_backgroundColor=[[NSColor blackColor] retain];
 			
 			_audioMainScreenOnly=[inDictionary[SHUserDefaultsAudioMainDisplayOnly] boolValue];
 			_audioMode=[inDictionary[SHUserDefaultsMovieVolumeMode] integerValue];
-			_audioVolume=[inDictionary[SHUserDefaultsMovieVolumeCustomValue] integerValue];
+			_audioVolume=[inDictionary[SHUserDefaultsMovieVolumeCustomValue] doubleValue];
 			
 			
 			_mainDisplayOnly=[inDictionary[SHUserDefaultsMainDisplayOnly] boolValue];
@@ -118,6 +118,13 @@ static BOOL sSettingsAreLocked=NO;
 	}
 	
 	return nil;
+}
+
+- (void)dealloc
+{
+    [_assets release];
+    [_backgroundColor release];
+    [super dealloc];
 }
 
 - (NSDictionary *)dictionaryRepresentation
@@ -148,7 +155,7 @@ static BOOL sSettingsAreLocked=NO;
 		tMutableDictionary[SHUserDefaultsMainDisplayOnly]=@(self.mainDisplayOnly);
 	}
 	
-	return [tMutableDictionary copy];
+	return [[tMutableDictionary copy] autorelease];
 }
 
 - (void)resetSettings
